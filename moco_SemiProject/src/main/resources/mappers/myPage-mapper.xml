@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="myPageMapper">
+	
+<!-- 	작성한 게시글 -->
+	<select id="getBoardListCount" resultType="_int">
+		select count(*)
+		from board
+			join member on(board.member_num = member.member_num)
+		where board_status='Y' and member_id = #{id}
+	</select>
+
+	<select id="selectBoardList" resultMap ="boardResultSet">
+		select *
+		from board
+			join member on(board.member_num = member.member_num)
+		where board_status = 'Y' and member_id = #{id}
+		order by board_num desc
+	</select>
+	
+		
+<!-- 	스크랩한 글 -->
+	<select id="getScrapListCount" resultType="_int">
+		select count(*)
+		from board
+			join scrap on(board.board_num = scrap.board_num)
+			join member on(scrap.member_num = member.member_num)
+		where board_status = 'Y' and member_id = #{id}
+	</select>
+
+	<select id="selectScrapList" resultMap ="boardResultSet">
+		select *
+		from board
+			join scrap on(board.board_num = scrap.board_num)
+			join member on(scrap.member_num = member.member_num)
+		where board_status = 'Y' and member_id = #{id}
+		order by scrap_num desc
+	</select>
+	
+	
+<!-- 	작성한 댓글 -->
+	<select id="getReplyListCount" resultType="_int">
+		select count(*)
+		from reply
+			join member on(reply.member_num = member.member_num)
+		where reply_status='Y' and member_id = #{id}
+	</select>
+	
+	<select id="selectReplyList" resultMap ="replyResultSet">
+		select reply_num, reply_content, reply_create_date, reply.member_num, reply.board_num, board.board_category
+		from board
+			join reply on(board.board_num = reply.board_num)
+			join member on(reply.member_num = member.member_num)	
+		where reply_status = 'Y' and member_id = #{id}
+		order by reply_num desc
+	</select>
+	
+	
+<!-- 	게시글 요청 -->
+	<select id="getInfoRequestListCount" resultType="_int">
+		select count(*)
+		from INFO
+			join member on(info.member_num = member.member_num)
+		where info_approve='N' AND info_status='Y'
+	</select>
+	
+	<select id="selectInfoRequestList" resultMap="infoRequestResultSet">
+		select info_num, info_academyname, info_classname, info_create_date, info_approve, member_name
+		from info
+			join member on(info.member_num = member.member_num)	
+		where info_approve = 'N' AND info_status='Y'
+		order by info_num
+	</select>
+	
+	<select id="confirmInfo">
+		update info
+		set info_approve = 'Y'
+		where info_num=#{info_num}		
+	</select>
+	
+	<select id="rejectInfo">
+		update info
+		set info_approve = 'R'
+		where info_num=#{info_num}
+	</select>
+	
+	
+<!-- 	마이페이지 게시글상세보기 -->
+	<select id="selectInfoRequestDetail" resultMap="infoResultSet">
+		select *
+		from info
+		where info_num=#{infoNum} and (info_approve ='R' of info_approve = 'N') and info_status='Y'
+	</select>
+	
+	
+<!-- 	게시글 요청 상세보기 -->
+	<select id="selectInfoDetail" resultMap="infoResultSet">
+		select *
+		from info
+		where info_num=#{InfoNum} and info_approve='N' and info_status='Y'
+	</select>
+	
+	<select id="selectAttmListDetail" resultMap="attachmentResultSet">
+		select * 
+		from attachment
+		where attm_refboard=#{infoNum}
+	</select>
+
+	
+<!-- 	회원 정보 관리 -->
+	<select id="getMemberListCount" resultType="_int">
+		select count(*)
+		from MEMBER
+		order by member_num desc
+	</select>
+	
+	<select id="selectMemberList" resultMap="memberResultMap">
+		select *
+		from member
+		order by member_num desc
+	</select>
+	
+	<select id="selectMember" resultMap="memberResultMap">
+		select *
+		from member
+		where member_num =#{memberNum}
+	</select>
+	
+	<update id="updateMember">
+		update member
+		set  member_name=#{memberName},
+			member_nickname=#{memberNickName}, member_email=#{memberEmail}
+		where member_id=#{memberId}
+	</update>
+	
+	
+		
+<!-- 	신고관련 -->
+	<select id="infoRequestPreReport" resultMap ="boardResultSet">
+		select *
+		from board
+			join member using(member_num)
+		where board_report = 'Y' and board_status = 'Y'
+		order by board_num desc
+	</select>
+	
+	<select id="getMyInfoReportListView" resultType="_int">
+		select count(*)
+		from board
+			join member using(member_num)
+		where board_report = 'Y' and board_status = 'Y'
+	</select>
+	
+	<select id="myInfoReportListView" resultMap="boardResultSet">
+		select *
+		from board
+			join member using(member_num)	
+		where board_report = 'Y' and board_status = 'Y'
+		order by board_num
+	</select>
+
+	
+<!-- 	마이페이지 - 게시글 요청 -->
+	<select id="getMyInfoRequestListCount" resultType="_int">
+		select count(*)
+		from INFO
+		where (info_approve = 'R' or info_approve = 'N') AND info_status='Y' AND member_num=#{num}
+	</select>
+	
+	<select id="selectMyInfoRequestList" resultMap="infoResultSet">
+		select *
+		from info
+		where (info_approve = 'R' or info_approve = 'N') AND info_status='Y' AND member_num=#{num}
+		order by info_num
+	</select>
+	
+<!-- 	마이페이지 - 게시글 요청 - 상세보기 -->
+	<select id="selectMyInfoDetail" resultMap="infoResultSet">
+		select *
+		from info
+		where info_num=#{InfoNum} and info_status='Y'
+	</select>
+
+	
+	
+	
+	<resultMap type="Board" id="boardResultSet">
+		<id column="BOARD_NUM" property="boardNum"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="BOARD_VIEW" property="boardView"/>
+		<result column="BOARD_CREATE_DATE" property="boardCreateDate"/>
+		<result column="BOARD_MODIFY_DATE" property="boardModifyDate"/>
+		<result column="BOARD_ANONYMITY" property="boardAnonymity"/>
+		<result column="BOARD_CATEGORY" property="boardCategory"/>
+		<result column="BOARD_STATUS" property="boardStatus"/>
+		<result column="BOARD_REPORT" property="boardReport"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+			<result column="MEMBER_NICKNAME" property="nickName"/>
+	</resultMap>
+	
+	<resultMap type="Scrap" id="scrapResultSet">
+		<id column="SCRAP_NUM" property="scrapNum"/>
+		<result column="BOARD_NUM" property="boardNum"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+	</resultMap>
+	
+	<resultMap type="Reply" id="replyResultSet">
+		<id column="REPLY_NUM" property="replyNum"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="REPLY_CREATE_DATE" property="replyCreateDate"/>
+		<result column="REPLY_MODIFY_DATE" property="replyModifyDate"/>
+		<result column="REPLY_STATUS" property="replyStatus"/>
+		<result column="REPLY_ANONYMITY" property="replyAnonymity"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+		<result column="BOARD_NUM" property="boardNum"/>
+		<result column="BOARD_CATEGORY" property="boardCategory"/>
+	</resultMap>
+	
+	<resultMap type="InfoRequest" id="infoRequestResultSet">
+		<id column="INFO_NUM" property="infoNum"/>
+		<result column="INFO_ACADEMYNAME" property="infoAcademyName"/>
+		<result column="INFO_CLASSNAME" property="infoClassName"/>
+		<result column="INFO_CREATE_DATE" property="infoCreateDate"/>
+		<result column="INFO_APPROVE" property="infoApprove"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+	</resultMap>
+
+	<resultMap type="Member" id="memberResultMap">
+		<id column="MEMBER_NUM" property="memberNum"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="MEMBER_PWD" property="memberPwd"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="MEMBER_NICKNAME" property="memberNickName"/>
+		<result column="MEMBER_EMAIL" property="memberEmail"/>
+		<result column="MEMBER_ENROLL_DATE" property="memberEnrollDate"/>
+		<result column="MEMBER_ISADMIN" property="memberIsAdmin"/>
+		<result column="MEMBER_STATUS" property="memberStatus"/>
+	</resultMap>
+	
+	<resultMap type="Infomation" id="infoResultSet">
+		<id column="INFO_NUM" property="infoNum"/>
+		<result column="INFO_CLASSNAME" property="infoClassName"/>
+		<result column="INFO_ACADEMYNAME" property="infoAcademyName"/>
+		<result column="INFO_PERIOD" property="infoPeriod"/>
+		<result column="INFO_TIME" property="infoTime"/>
+		<result column="INFO_PERSON" property="infoManager"/>
+		<result column="INFO_CATEGORY" property="infoCategory"/>
+		<result column="INFO_PHONE" property="infoPhone"/>
+		<result column="INFO_ADDRESS" property="infoAddress"/>
+		<result column="INFO_ADDRESS_LAT" property="infoAddressLat"/>
+		<result column="INFO_ADDRESS_LONG" property="infoAddressLong"/>
+		<result column="INFO_PRICE" property="infoPrice"/>
+		<result column="INFO_ONOFF" property="infoOnOff"/>
+		<result column="INFO_DETAIL" property="infoDetail"/>
+		<result column="INFO_ADDINFOMATION" property="infoAddInfomation"/>
+		<result column="INFO_STATUS" property="infoStatus"/>
+		<result column="INFO_CREATE_DATE" property="infoCreateDate"/>
+		<result column="INFO_MODIFY_DATE" property="infoModifyDate"/>
+		<result column="INFO_APPROVE" property="infoApprove"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+	</resultMap>
+	
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id column="ATTM_NUM" property="attmNum"/>
+		<result column="ATTM_ORIGIN_NAME" property="attmOriginName"/>
+		<result column="ATTM_RENAME" property="attmRename"/>
+		<result column="ATTM_CREATE_DATE" property="attmCreateDate"/>
+		<result column="ATTM_STATUS" property="attmStatus"/>
+		<result column="ATTM_LEVEL" property="attmLevel"/>
+		<result column="ATTM_CATEGORY" property="attmCategory"/>
+		<result column="ATTM_REFBOARD" property="attmRefboard"/>
+		<result column="ATTM_PATH" property="attmPath"/>
+	</resultMap>
+
+</mapper>

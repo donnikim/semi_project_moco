@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="boardMapper">
+
+	<resultMap type="Board" id="boardResultSet">
+		<id column="BOARD_NUM" property="boardNum"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="BOARD_VIEW" property="boardView"/>
+		<result column="BOARD_CREATE_DATE" property="boardCreateDate"/>
+		<result column="BOARD_MODIFY_DATE" property="boardModifyDate"/>
+		<result column="BOARD_ANONYMITY" property="boardAnonymity"/>
+		<result column="BOARD_CATEGORY" property="boardCategory"/>
+		<result column="BOARD_STATUS" property="boardStatus"/>
+		<result column="BOARD_REPORT" property="boardReport"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+		<result column="MEMBER_nickName" property="nickName"/>
+	</resultMap>
+
+
+	<insert id="insertBoard">
+		insert into board
+		values( board_seq.nextval, #{boardTitle}, #{boardContent}, default, sysdate,
+		sysdate, #{boardAnonymity}, #{boardCategory}, default, default, 1,
+		#{memberNum} )
+	</insert>
+	
+	<!-- 카테고리 게시글 리스트 -->
+  	<select id="selectBoardList" parameterType="map" resultMap="boardResultSet">
+		select * 
+		from board 
+		join member using(member_num)
+        where board_status = 'Y' and board_Type = 1 
+  		<if test="boardCategory == '익명'">
+  			and BOARD_ANONYMITY = #{Anonymity}
+  		</if>
+  		<if test="boardCategory != '익명'">
+  			and board_CATEGORY  = #{boardCategory} and BOARD_ANONYMITY = #{Anonymity}
+  		</if>
+    	order by board_num desc
+	</select>
+	
+	
+	<select id="selectBoard" resultMap="boardResultSet">
+		select *
+		from board
+		join member on (board.member_num = member.member_num)
+		where board_status = 'Y' and board_num = #{bId}
+	</select>
+
+
+	<!-- 메인리스트 게시글 개수 -->
+	<select id="getListCountMain" parameterType="map" resultType="_int">
+  		select count(*)
+  		from board
+  		where board_status='Y' and board_Type = #{boardType}
+  	</select>
+  	
+  	
+  <!-- 메인리스트 게시글 리스트 -->
+  	<select id="selectBoardListMain" parameterType="map" resultMap="boardResultSet">
+		select * from board join member using(member_num)
+        where board_status = 'Y' and board_Type = #{boardType}
+    	order by board_num desc
+	</select>
+
+  <!-- 카테고리 게시글 개수 -->
+  	<select id="getListCount" parameterType="map" resultType="_int">
+  		select count(*)
+  		from board
+  		where board_status='Y' and board_Type = 1 
+  		<if test="boardCategory == '익명'">
+  			and BOARD_ANONYMITY = #{Anonymity}
+  		</if>
+  		<if test="boardCategory != '익명'">
+  			and board_CATEGORY  = #{boardCategory} and BOARD_ANONYMITY = #{Anonymity}
+  		</if>
+  	</select>
+  	
+
+	<!-- 검색 게시글 개수 -->
+	<select id="getListCountSearch" parameterType="map" resultType="_int">
+  		select count(*)
+		from board
+			join member using(member_num)
+		where board_status = 'Y' and board_Type = 1
+		
+		<if test="boardCategory == 'main'">
+			<if test="searchCondition == 'writer'">
+					and member_nickname = #{ searchValue } and BOARD_ANONYMITY = #{boardAnonymity}
+			</if>
+			<if test="searchCondition == 'title'">
+					and board_title like '%' || #{searchValue} || '%' and BOARD_ANONYMITY = #{boardAnonymity}
+			</if>
+			<if test="searchCondition == 'content'">
+					and board_content like '%' || #{searchValue} || '%' and BOARD_ANONYMITY = #{boardAnonymity}
+			</if> 
+		</if>
+		<if test="boardCategory != 'main'">
+			<if test= "boardCategory !='익명'">
+				<if test="searchCondition == 'writer'">
+						and member_nickname = #{ searchValue } and board_CATEGORY = #{ boardCategory } and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'title'">
+						and board_title like '%' || #{searchValue} || '%' and board_CATEGORY = #{ boardCategory } and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'content'">
+						and board_content like '%' || #{searchValue} || '%' and board_CATEGORY = #{ boardCategory } and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+			</if>
+		</if>
+		<if test="boardCategory != 'main'">
+			<if test= "boardCategory =='익명'">
+				<if test="searchCondition == 'writer'">
+						and member_nickname = #{ searchValue }  and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'title'">
+						and board_title like '%' || #{searchValue} || '%'  and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'content'">
+						and board_content like '%' || #{searchValue} || '%'  and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+			</if>
+		</if>
+		order by board_num desc
+	</select>
+	
+	<!-- 검색 게시글 리스트 -->
+  	<select id="selectBoardListSearch" parameterType="map" resultMap="boardResultSet">
+		select *
+		from board
+			join member using(member_num)
+		where board_status = 'Y' and board_Type = 1
+		
+		<if test="boardCategory == 'main'">
+			<if test="searchCondition == 'writer'">
+					and member_nickname = #{ searchValue } and BOARD_ANONYMITY = #{boardAnonymity}
+			</if>
+			<if test="searchCondition == 'title'">
+					and board_title like '%' || #{searchValue} || '%' and BOARD_ANONYMITY = #{boardAnonymity}
+			</if>
+			<if test="searchCondition == 'content'">
+					and board_content like '%' || #{searchValue} || '%' and BOARD_ANONYMITY = #{boardAnonymity}
+			</if> 
+		</if>
+		<if test="boardCategory != 'main'">
+			<if test= "boardCategory !='익명'">
+				<if test="searchCondition == 'writer'">
+						and member_nickname = #{ searchValue } and board_CATEGORY = #{ boardCategory } and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'title'">
+						and board_title like '%' || #{searchValue} || '%' and board_CATEGORY = #{ boardCategory } and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'content'">
+						and board_content like '%' || #{searchValue} || '%' and board_CATEGORY = #{ boardCategory } and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+			</if>
+		</if>
+		<if test="boardCategory != 'main'">
+			<if test= "boardCategory =='익명'">
+				<if test="searchCondition == 'writer'">
+						and member_nickname = #{ searchValue }  and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'title'">
+						and board_title like '%' || #{searchValue} || '%'  and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+				<if test="searchCondition == 'content'">
+						and board_content like '%' || #{searchValue} || '%'  and BOARD_ANONYMITY = #{boardAnonymity}
+				</if>
+			</if>
+		</if>
+		
+		order by board_num desc
+	</select>
+  	
+  	<!-- 메인리스트 게시글 리스트 -->
+  	<select id="selectBoardListQMain" parameterType="map" resultMap="boardResultSet">
+		select * from board join member using(member_num)
+        where board_status = 'Y' and board_Type = 1 and BOARD_ANONYMITY = #{Anonymity} and  BOARD_CATEGORY = #{QNA}
+    	order by board_num desc
+	</select>
+	
+	  	<!-- 메인리스트 게시글 리스트 -->
+  	<select id="selectBoardListFMain" parameterType="map" resultMap="boardResultSet">
+		select * from board join member using(member_num)
+        where board_status = 'Y' and board_Type = 1 and BOARD_ANONYMITY = #{Anonymity} and  BOARD_CATEGORY = #{Free}
+    	order by board_num desc
+	</select>
+	
+	  	<!-- 메인리스트 게시글 리스트 -->
+  	<select id="selectBoardListRMain" parameterType="map" resultMap="boardResultSet">
+		select * from board join member using(member_num)
+        where board_status = 'Y' and board_Type = 1 and BOARD_ANONYMITY = #{Anonymity} and  BOARD_CATEGORY = #{review}
+    	order by board_num desc
+	</select>
+  	
+  	
+	
+	<update id="updateCount">
+		update board
+		set board_View = board_View + 1
+		where
+		board_Num = #{bId}
+	</update>
+	
+	<update id="updateBoard">
+		update board
+		set board_title= #{boardTitle},
+			board_content = #{boardContent},
+			board_modify_date = sysdate, 
+			board_type= #{boardType}
+		where board_num= #{boardNum}
+	</update>
+	
+	<update id="deleteBoard">
+		update board
+		set board_status = 'N'
+		where board_num = #{boardNum}
+	</update>
+	
+	<resultMap type="Reply" id="replyResultSet">
+		<id column="REPLY_NUM" property="replyNum"/>		
+			<result column="REPLY_CONTENT" property="replyContent"/>
+			<result column="REPLY_CREATE_DATE" property="replyCreateDate"/>
+			<result column="REPLY_MODIFY_DATE" property="replyModifyDate"/>
+			<result column="REPLY_STATUS" property="replyStatus"/>
+			<result column="REPLY_ANONYMITY" property="replyAnonymity"/>
+			<result column="MEMBER_NICKNAME" property="nickName"/>
+			<result column="MEMBER_NUM" property="memberNum"/>
+			<result column="BOARD_NUM" property="boardNum"/>
+<!-- 			<result column="BOARD_CATEGORY" property="boardCategory"/> -->
+	</resultMap>
+	
+	<select id="selectReply" resultMap="replyResultSet">
+		select * 
+		from reply
+			join member on(reply.member_num = member.member_num)
+		where reply.board_num = #{boardNum} and reply_status = 'Y'
+		order by reply_num desc
+	</select>
+	
+	<update id="insertReply">
+		insert into reply
+		values(reply_seq.nextval, #{replyContent}, sysdate, sysdate, default,#{replyAnonymity} , #{memberNum}, #{boardNum} )
+	</update>
+	
+	<update id="reportBoard">
+		update board
+		set board_report = 'Y'
+		where board_num = #{boardNum}
+	</update>
+	
+	<update id="reportBoardAdmin">
+		update board
+		set board_status = 'N', board_report = 'N'
+		where board_num = #{boardNum}
+	</update>
+	
+	<update id="reportBoardAdmin2">
+		update board
+		set board_report = 'N', board_status = 'Y'
+		where board_num = #{boardNum}
+	</update>
+
+
+	<resultMap type="Attachment" id="attmResultSet">
+		<id column="ATTM_NUM" property="attmNum"/>
+			<result column="ATTM_ORIGIN_NAME" property="attmOriginName"/>
+			<result column="ATTM_RENAME" property="attmRename"/>
+			<result column="ATTM_PATH" property="attmPath"/>
+			<result column="ATTM_CREATE_DATE" property="attmCreateDate"/>
+			<result column="ATTM_STATUS" property="attmStatus"/>
+			<result column="ATTM_LEVEL" property="attmLevel"/>
+			<result column="ATTM_CATEGORY" property="attmCategory"/>
+			<result column="ATTM_REFBOARD" property="attmRefboard"/>
+	</resultMap>
+	
+	<insert id="insertAttm">
+			insert all
+		<foreach collection="list" item="item">
+			into attachment
+			values(moco_aid, #{item.attmOriginName}, #{item.attmRename},
+					#{item.attmPath}, sysdate, 'Y', #{item.attmLevel}, 1,
+			<if test="item.attmRefboard == 0">
+				board_seq.currval)
+			</if>
+			<if test="item.attmRefboard != 0">
+				#{item.attmRefboard})
+			</if>
+		</foreach>
+			select * from dual
+	</insert>
+	
+	<select id="selectAttm" resultMap="attmResultSet">
+		select *
+		from attachment
+		where ATTM_STATUS = 'Y' 
+		and ATTM_REFBOARD = #{ bId }
+		order by ATTM_NUM
+	</select>
+	
+	<delete id="deleteAttm">
+		delete from attachment
+		where ATTM_RENAME in 
+		<foreach collection="list" open="(" close=")" separator="," item="item">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<update id="updateAttmLevel">
+		update attachment
+		set ATTM_LEVEL = 0
+		where ATTM_NUM = (select min(ATTM_NUM)
+						 from attachment
+						 where ATTM_REFBOARD = #{boardId})
+	</update>
+	
+	<insert id="insertScrap">
+		INSERT INTO SCRAP
+		VALUES(scrap_seq.nextval, #{boardNum}, #{memberNum})
+	</insert>
+	
+	<select id="selectScrap" resultMap="ScrapResultSet">
+		select * 
+		from scrap
+		where member_num = #{memberNum}
+	</select>
+	
+	<resultMap type="Scrap" id="ScrapResultSet">
+		<id column="SCRAP_NUM" property="scrapNum"/>
+		<result column="BOARD_NUM" property="boardNum"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+	</resultMap>
+
+
+
+</mapper>
+

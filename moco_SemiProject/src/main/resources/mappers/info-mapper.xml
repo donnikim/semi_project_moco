@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="infoMapper">
+
+	<select id="listCount" resultType="_int">
+		select count(*)
+		from info
+		where info_status='Y' and info_approve='Y'
+	
+	
+	</select>
+
+	
+	<insert id="insertInfo">
+		
+		insert into info 
+		values(attm_seq.nextval,#{infoClassName},#{infoAcademyName},#{infoPeriod},#{infoTime},#{infoManager},#{infoCategory},#{infoPhone},#{infoAddress},#{infoAddressLat},#{infoAddressLong},
+		#{infoPrice},#{infoOnOff},#{infoDetail},#{infoAddInfomation},'Y',sysdate,sysdate,'N',0,#{memberNum})
+	
+	</insert>
+		<resultMap type="Infomation" id="infoResultSet">
+		<id column="INFO_NUM" property="infoNum"/>
+		<result column="INFO_CLASSNAME" property="infoClassName"/>
+		<result column="INFO_ACADEMYNAME" property="infoAcademyName"/>
+		<result column="INFO_PERIOD" property="infoPeriod"/>
+		<result column="INFO_TIME" property="infoTime"/>
+		<result column="INFO_PERSON" property="infoManager"/>
+		<result column="INFO_CATEGORY" property="infoCategory"/>
+		<result column="INFO_PHONE" property="infoPhone"/>
+		<result column="INFO_ADDRESS" property="infoAddress"/>
+		<result column="INFO_ADDRESS_LAT" property="infoAddressLat"/>
+		<result column="INFO_ADDRESS_LONG" property="infoAddressLong"/>
+		<result column="INFO_PRICE" property="infoPrice"/>
+		<result column="INFO_ONOFF" property="infoOnOff"/>
+		<result column="INFO_PROCESS" property="infoDetail"/>
+		<result column="INFO_ADDINFOMATION" property="infoAddInfomation"/>
+		<result column="INFO_STATUS" property="infoStatus"/>
+		<result column="INFO_CREATE_DATE" property="infoCreateDate"/>
+		<result column="INFO_MODIFY_DATE" property="infoModifyDate"/>
+		<result column="INFO_APPROVE" property="infoApprove"/>
+		<result column="INFO_COUNT" property="infoCount"/>
+		<result column="MEMBER_NUM" property="memberNum"/>
+	</resultMap>
+	<insert id="insertAttm">
+		insert all 
+		<foreach collection="list" item="item" separator=" ">
+		into attachment
+		values(moco_aid,#{item.attmOriginName},#{item.attmRename},#{item.attmPath},SYSDATE,'Y',#{item.attmLevel},2,attm_seq.currval)
+		</foreach>
+		select *from dual
+	</insert>
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id column="ATTM_NUM" property="attmNum"/>
+		<result column="ATTM_ORIGIN_NAME" property="attmOriginName"/>
+		<result column="ATTM_RENAME" property="attmRename"/>
+		<result column="ATTM_CREATE_DATE" property="attmCreateDate"/>
+		<result column="ATTM_STATUS" property="attmStatus"/>
+		<result column="ATTM_LEVEL" property="attmLevel"/>
+		<result column="ATTM_CATEGORY" property="attmCategory"/>
+		<result column="ATTM_REFBOARD" property="attmRefboard"/>
+		<result column="ATTM_PATH" property="attmPath"/>
+	</resultMap>
+	<select id="selectInfoList" resultMap="infoResultSet">
+		
+		select *
+		from info
+		where info_status='Y' and info_approve='Y' 
+		order by info_num desc
+	</select>
+	
+	<select id="selectAttm" resultMap="attachmentResultSet">
+		
+		select *
+		from attachment
+		where attm_status='Y' and attm_level=0
+
+	</select>
+	<select id="selectInfoDetail" resultMap="infoResultSet">
+		
+		select *
+		from info
+		where info_num=#{infoId} and info_status='Y'
+		
+	
+	</select>
+	<select id="selectAttmListDetail" resultMap="attachmentResultSet">
+		
+		select * 
+		from attachment
+		where attm_refboard=#{infoId}
+	
+	</select>
+	
+	<update id="addCount">
+		update info
+		set info_count=info_count+1
+		where info_num=#{infoId}
+	
+	</update>
+
+	<select id="selectCount" resultMap="infoResultSet" >
+		
+		select *
+		from info
+		where info_status='Y' and info_approve='Y' 
+		order by info_count desc
+	
+	</select>
+	
+	<select id="selectCountAttm" resultMap="attachmentResultSet">
+		
+		select *
+		from attachment
+		where attm_status='Y' and attm_level=0
+		order By attm_num desc
+	</select>
+	
+	<update id="deleteInfo">
+		update info
+		set info_status='N'
+		where info_num=#{infoNum}
+	
+	</update>
+
+	<delete id="deleteAttmBefore">
+	
+		delete from attachment where attm_refboard=#{infoId}
+	
+	</delete>
+	<update id="updateInfo">
+	update info
+	set info_classname=#{infoClassName},
+		info_academyname=#{infoAcademyName},
+		info_period=#{infoPeriod},
+		info_time=#{infoTime},
+		info_person=#{infoManager},
+		info_category=#{infoCategory},
+		info_phone=#{infoPhone},
+		info_address=#{infoAddress},
+		info_address_lat=#{infoAddressLat},
+		info_address_long=#{infoAddressLong},
+		info_price=#{infoPrice},
+		info_onoff=#{infoOnOff},
+		info_process=#{infoDetail},
+		info_addinfomation=#{infoAddInfomation},
+		info_modify_date=SYSDATE
+	where info_num=#{infoNum}
+
+	</update>
+	
+	<insert id="updateAttmAfter">
+
+	insert all
+	<foreach collection="list" item="item" separator=" ">
+	into attachment
+	values(moco_aid,#{item.attmOriginName},#{item.attmRename},#{item.attmPath},SYSDATE,'Y',#{item.attmLevel},2,#{item.attmRefboard})
+	</foreach>
+	select *from dual
+	
+	
+	</insert>
+	
+</mapper>

@@ -1,0 +1,108 @@
+@charset "UTF-8";
+
+body {
+    margin: 0;
+    color: #222;
+    line-height: 1.5em;
+    font-size: 15px;
+    background-color: #eee;
+    font-weight: 300;
+}
+
+header {
+    font-weight: normal;
+    background: #fff;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    position: fixed;
+      top: 0;
+ 	 left: 0;
+ 	 right: 0;
+}
+.navlogin input{
+	margin: 5px;
+}
+#login{
+	margin-top: 30px;
+	float:right;
+}
+
+#enroll{
+	margin-top: 30px;
+	float:right;
+}
+
+nav {
+    /* border: 1px solid red; */
+    width: 100%;
+    margin: auto;
+}
+
+nav > div {
+    /* border: 1px solid #000; */
+    height: 70px;
+    line-height: 50px;
+}
+.gnb a {
+    text-decoration: none;
+    color: #222;
+}
+
+.gnb {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.gnb a {
+    margin: 100px;
+}
+/*배너*/
+
+.main-view{
+   margin-top: 140px;
+   margin-left: -40px;
+   text-align: center;
+}
+.main-view{height:400px;overflow:hidden;}
+    .main-view ul{width:calc(100% * 3);display:flex;animation:slide 8s infinite;} /* slide를 8초동안 진행하며 무한반복 함 */
+    .main-view li{width:calc(100% / 3);height:100px;}
+    
+    @keyframes slide {
+      0% {margin-left:0;} /* 0 ~ 10  : 정지 */
+      10% {margin-left:0;} /* 10 ~ 25 : 변이 */
+      25% {margin-left:-100%;} /* 25 ~ 35 : 정지 */
+      35% {margin-left:-100%;} /* 35 ~ 50 : 변이 */
+      50% {margin-left:-200%;}
+      60% {margin-left:-200%;}
+      100% {margin-left:0;}
+}
+/* 정보보기 */
+    .infocenter{text-align: center;}
+    .infocenter>div{display: inline-block; width: 300px; height: 300px; border: 1px solid black; margin: 30px;}
+    .infotop{height:30px; border-bottom: 1px solid black; margin-top:10px;}
+    .infomiddle{
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 300px;
+            height: 180px;
+            border-bottom: 1px solid black;
+      }
+/* 자유게시판 */
+	.freecenter{text-align: center;}
+    .freecenter>div{display: inline-block; width: 450px; height: 300px; border: 1px solid black; margin: 5px 40px 5px 40px;}
+/* 하단 */
+footer {
+	width: 100%;
+}
+
+#footer_logo {
+    float: left;
+    margin : 0px 0px 0px 500px;
+}
+#footer_box #address {
+    float: right;
+    margin : 0px 200px 0px 0px;
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+<typeAliases>
+	<typeAlias type="com.kh.moco.member.model.vo.Member" alias="Member"/>
+	<typeAlias type="com.kh.moco.info.model.vo.Infomation" alias="Infomation"/>
+	<typeAlias type="com.kh.moco.attachment.model.vo.Attachment" alias="Attachment"/>
+	<typeAlias type="com.kh.moco.board.model.vo.Scrap" alias="Scrap"/>
+	<typeAlias type="com.kh.moco.board.model.vo.Reply" alias="Reply"/>
+	<typeAlias type="com.kh.moco.myPage.model.vo.MyReply" alias="MyReply"/>
+	<typeAlias type="com.kh.moco.myPage.model.vo.InfoRequest" alias="InfoRequest"/>
+	<typeAlias type="com.kh.moco.board.model.vo.Board" alias="Board"/>
+</typeAliases>
+<mappers>
+	<mapper resource="mappers/member-mapper.xml"></mapper>
+	<mapper resource="mappers/info-mapper.xml"></mapper>
+	<mapper resource="mappers/myPage-mapper.xml"/>
+	<mapper resource="mappers/board-mapper.xml"/>
+</mappers>
+</configuration>
